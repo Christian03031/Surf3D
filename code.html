@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Surf3D</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">		
+		<style>
+			body {
+				color: #000000;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+
+				background-color: rgba(0,0,0,0);
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+
+			a {
+
+				color: #0080ff;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script>
+			// Path to the txt file that contains the current file
+			let filePath;
+			window.electron.onFromMain('message-from-main', (message) => {
+				filePath = message
+				var std= fetchJSONFromFile(filePath);
+				std.then((result) => { pointsData = result[0]; dataType = result[1]; console.log("Stored value:", pointsData); console.log("DataType:", dataType)}); 
+			});
+
+		// Define an async function to fetch JSON data from a file
+		async function fetchJSONFromFile(filePath) {
+			try {
+				const responsePath = await fetch(filePath + '/path/path.txt');
+
+				// Check for HTTP errors
+				if (!responsePath.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+			
+				var path = await responsePath.text();
+				const response = await fetch(path);
+				const contentType = response.headers.get('Content-Type');
+
+				// Check for HTTP errors
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+			
+				if(contentType == 'text/plain' || contentType == 'text/csv'){
+					// Extract and return the JSON data
+					return [await response.text(), contentType];
+				}else if (contentType == 'application/json'){
+					// Extract and return the JSON data
+					return [await response.json(), contentType];
+				}
+				
+
+				} catch (error) {
+					console.error("Error fetching JSON:", error);
+					throw error; // Rethrow the error if you need to handle it elsewhere
+				}
+			}
+		
+			let pointsData;
+			let dataType;  
+		
+ 		</script>
+
+		<script src="vendor/buffer.geometry.utils.js"></script>
+		<script src="vendor/three.min.js"></script>
+		<script src="vendor/delaunator.min.js"></script>
+		<script src="vendor/OrbitControls.js"></script>
+		<script src="vendor/gui.js" type = "module"></script>
+		<script src="index.js" type = "module"></script>
+	</body>
+</html>
